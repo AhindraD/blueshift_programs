@@ -1,6 +1,8 @@
 use pinocchio::{
-    account_info::AccountInfo, program_error::ProgramError, pubkey::find_program_address,
+    ProgramResult, account_info::AccountInfo, program_error::ProgramError,
+    pubkey::find_program_address,
 };
+use pinocchio_system::instructions::Transfer;
 
 pub struct DepositAccounts<'a> {
     pub owner: &'a AccountInfo,
@@ -64,18 +66,31 @@ pub struct Deposit<'a> {
     pub instruction_data: DepositInstructionData,
 }
 
-impl<'a> TryFrom<&'a [u8],&' [AccountInfo]> for Deposit<'a>{
-    type Error=ProgramError;
+impl<'a> TryFrom<(&'a [u8], &'a [AccountInfo])> for Deposit<'a> {
+    type Error = ProgramError;
 
-    fn try_from((data,accounts):(&'a [u8], &'a [AccountInfo]))->Result<Self,Self::Error>{
-        let accounts=DepositAccounts::try_from(accounts)?;
+    fn try_from((data, accounts): (&'a [u8], &'a [AccountInfo])) -> Result<Self, Self::Error> {
+        let accounts = DepositAccounts::try_from(accounts)?;
 
-        let instruction_data:DepositInstructionData=DepositInstructionData::try_from(data)?;
+        let instruction_data: DepositInstructionData = DepositInstructionData::try_from(data)?;
 
-        Ok(Self{
+        Ok(Self {
             accounts,
             instruction_data,
         })
     }
 }
 
+impl<'a> Deposit<'a> {
+    pub const DISCRIMINATOR: &'a u8 = &0;
+
+    pub fn process(&mut self) -> ProgramResult {
+        Transfer {
+            from: self.accounts.owner,
+            to: self.accounts.vault,
+            lamports: self.instruction_data.amount,
+        }
+        .invoke()?;
+        Ok(())
+    }
+}
