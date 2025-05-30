@@ -19,7 +19,7 @@ pub struct Take<'info> {
         close=maker,
         seeds=[
             "escrow".as_bytes(),
-            maker.key.as_ref(),
+            maker.key().as_ref(),
             escrow.seed.to_le_bytes().as_ref()
         ],
         bump=escrow.bump,
@@ -73,7 +73,7 @@ pub struct Take<'info> {
 
 
 impl<'info>Take<'info>{
-    fn transfer_to_maker(&mut self)->Result<()>{
+    pub fn transfer_to_maker(&mut self)->Result<()>{
         transfer_checked(
             CpiContext::new(
                 self.token_program.to_account_info(),
@@ -89,7 +89,7 @@ impl<'info>Take<'info>{
         Ok(())
     }
 
-    fn withdraw_and_close_vault(&mut self)->Result<()>{
+    pub fn withdraw_and_close_vault(&mut self)->Result<()>{
         let signer_seeds:[&[&[u8]];1]=[&[
                 b"escrow",
                 self.maker.to_account_info().key.as_ref(),
@@ -101,7 +101,7 @@ impl<'info>Take<'info>{
             CpiContext::new_with_signer(
                 self.token_program.to_account_info(), 
                 TransferChecked { 
-                    from: self.escrow.to_account_info(), 
+                    from: self.vault.to_account_info(), 
                     mint: self.mint_a.to_account_info(), 
                     to: self.taker_ata_a.to_account_info(), 
                     authority: self.escrow.to_account_info() }, 
@@ -126,3 +126,9 @@ impl<'info>Take<'info>{
     }
 
 }
+
+// pub fn handler(ctx:Context<Take>)->Result<()>{
+//     ctx.accounts.transfer_to_maker()?;
+//     ctx.accounts.withdraw_and_close_vault()?;
+//     Ok(())
+// }

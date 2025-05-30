@@ -58,19 +58,19 @@ pub struct Make<'info> {
 }
 
 impl<'info> Make<'info> {
-    fn populate_escrow(&mut self, seed: u64, amount: u64, bump: u8) -> Result<()> {
+    pub fn populate_escrow(&mut self, seed: u64, amount: u64, bumps: &MakeBumps) -> Result<()> {
         self.escrow.set_inner(Escrow {
             seed,
             maker: self.maker.key(),
             mint_a: self.mint_a.key(),
             mint_b: self.mint_b.key(),
             receive: amount,
-            bump,
+            bump: bumps.escrow,
         });
         Ok(())
     }
 
-    fn deposit_token(&self, amount: u64) -> Result<()> {
+    pub fn deposit_token(&self, amount: u64) -> Result<()> {
         transfer_checked(
             CpiContext::new(
                 self.token_program.to_account_info(),
@@ -89,13 +89,13 @@ impl<'info> Make<'info> {
     }
 }
 
-pub fn handler(ctx: Context<Make>, seed: u64, receive: u64, amount: u64) -> Result<()> {
-    require!(receive > 0, EscrowError::InvalidAmount);
-    require!(amount > 0, EscrowError::InvalidAmount);
+// pub fn handler(ctx: Context<Make>, seed: u64, receive: u64, amount: u64) -> Result<()> {
+//     require!(receive > 0, EscrowError::InvalidAmount);
+//     require!(amount > 0, EscrowError::InvalidAmount);
 
-    ctx.accounts
-        .populate_escrow(seed, receive, ctx.bumps.escrow)?;
-    ctx.accounts.deposit_token(amount)?;
+//     ctx.accounts
+//         .populate_escrow(seed, receive, ctx.bumps.escrow)?;
+//     ctx.accounts.deposit_token(amount)?;
 
-    Ok(())
-}
+//     Ok(())
+// }
