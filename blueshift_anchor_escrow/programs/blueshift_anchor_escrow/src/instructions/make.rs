@@ -52,7 +52,7 @@ pub struct Make<'info> {
     )]
     pub vault: InterfaceAccount<'info, TokenAccount>,
 
-    pub associated_token_account: Program<'info, AssociatedToken>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
     pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
 }
@@ -93,8 +93,9 @@ pub fn handler(ctx: Context<Make>, seed: u64, receive: u64, amount: u64) -> Resu
     require!(receive > 0, EscrowError::InvalidAmount);
     require!(amount > 0, EscrowError::InvalidAmount);
 
-    ctx.accounts.populate_escrow(seed, receive, bump);
-    ctx.accounts.deposit_token(amount);
+    ctx.accounts
+        .populate_escrow(seed, receive, ctx.bumps.escrow)?;
+    ctx.accounts.deposit_token(amount)?;
 
     Ok(())
 }

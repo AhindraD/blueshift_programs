@@ -16,13 +16,13 @@ pub mod blueshift_anchor_escrow {
         Ok(())
     }
 
-    #[instruction(discriminator = 1)]
-    pub fn take(ctx: Context<Take>) -> Result<()> {
-        Ok(())
-    }
+    // #[instruction(discriminator = 1)]
+    // pub fn take(ctx: Context<Take>) -> Result<()> {
+    //     Ok(())
+    // }
 
-    #[instruction(discriminator = 2)]
-    pub fn refund(ctx: Context<Refund>) -> Result<()> {
-        Ok(())
-    }
+    // #[instruction(discriminator = 2)]
+    // pub fn refund(ctx: Context<Refund>) -> Result<()> {
+    //     Ok(())
+    // }
 }
